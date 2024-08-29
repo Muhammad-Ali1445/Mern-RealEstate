@@ -1,3 +1,3 @@
 export const test = (req, res) => {
-  res.send("respnse form test");
+  res.send("response form test");
 };
