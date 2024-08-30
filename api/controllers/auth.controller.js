@@ -24,6 +24,8 @@ export const signup = async (req, res, next) => {
   }
 };
 
+// ----- ------------- SignIn ---------------- -----
+
 export const signIn = async (req, res, next) => {
   let { email, password } = req.body;
 
@@ -61,8 +63,8 @@ export const signIn = async (req, res, next) => {
         secure: process.env.NODE_ENV === "production",
       })
       .status(200)
-       .json({ success: true, message: "Login successful", user: rest });
-      // .json(rest);
+      .json({ success: true, message: "Login successful", user: rest });
+    // .json(rest);
   } catch (error) {
     console.error(error);
     next(error);
