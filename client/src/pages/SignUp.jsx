@@ -17,7 +17,7 @@ const SignUp = () => {
     e.preventDefault();
 
     if (!formData.username || !formData.email || !formData.password) {
-      setError("Wrong username or email or password");
+      setError("All fields are required");
       return;
     }
 
