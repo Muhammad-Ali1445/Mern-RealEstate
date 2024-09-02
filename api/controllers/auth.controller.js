@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+ 
+// ------------ SignIn -----------------
 
 export const signup = async (req, res, next) => {
   let { username, email, password } = req.body;
@@ -24,7 +26,7 @@ export const signup = async (req, res, next) => {
   }
 };
 
-// ----- ------------- SignIn ---------------- -----
+// ------------- SignIn ---------------
 
 export const signIn = async (req, res, next) => {
   let { email, password } = req.body;
@@ -67,6 +69,67 @@ export const signIn = async (req, res, next) => {
     // .json(rest);
   } catch (error) {
     console.error(error);
+    next(error);
+  }
+};
+
+// ------------ Google OAuth --------------
+
+export const google = async (request, res, next) => {
+  try {
+    const user = await User.findOne({ email: request.body.email });
+    if (user) {
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      const { password: pass, ...rest } = user._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+        })
+        .status(200)
+        .json({
+          success: true,
+          message: "Login successful through Google",
+          user: rest,
+        });
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+      const newUser = new User({
+        username:
+          request.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-4),
+        email: request.body.email,
+        password: hashedPassword,
+        avatar: request.body.photo,
+      });
+
+      await newUser.save();
+
+      const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+
+      const { password: pass, ...rest } = newUser._doc;
+
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+        })
+        .status(200)
+        .json({
+          success: true,
+          message: "Login successful through Google",
+          user: rest,
+        });
+    }
+  } catch (error) {
     next(error);
   }
 };
