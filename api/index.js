@@ -3,12 +3,16 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
+import cookieParser from 'cookie-parser';
+
+
 
 dotenv.config();
 const app = express();
 
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(cookieParser());
 
 // Set security-related headers
 app.use((req, res, next) => {
@@ -19,7 +23,10 @@ app.use((req, res, next) => {
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("Connected to MongoDB!");
   })
