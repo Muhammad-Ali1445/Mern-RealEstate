@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -8,23 +7,26 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-
-// firebase storage
-// allow read;
-// allow write: if
-// request.resource.size<2*1024*1024 &&
-// request.resource.contentType.matches('image/.*')
-
-const Profile = () => {
+import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
+export default function Profile() {
   const fileRef = useRef(null);
-  const { currUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
-  const [fileUploadErr, setFileUploadErr] = useState(false);
+  const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
-  console.log(filePerc);
-  console.log(file);
-  console.log(formData);
+  const dispatch = useDispatch();
+
+  // firebase storage
+  // allow read;
+  // allow write: if
+  // request.resource.size < 2 * 1024 * 1024 &&
+  // request.resource.contentType.matches('image/.*')
 
   useEffect(() => {
     if (file) {
@@ -43,23 +45,50 @@ const Profile = () => {
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setFilePerc(progress);
+        setFilePerc(Math.round(progress));
       },
       (error) => {
-        setFileUploadErr(true);
+        setFileUploadError(true);
       },
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) =>
-          setFormData({ ...formData, avatar: downloadUrl })
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
+          setFormData({ ...formData, avatar: downloadURL })
         );
       }
     );
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+
+      dispatch(updateUserSuccess(data));
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+    }
+  };
+
   return (
-    <div className="p-5 max-w-lg mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-4">Profile</h1>
-      <form className="flex flex-col gap-4">
+    <div className="p-3 max-w-lg mx-auto">
+      <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -69,17 +98,19 @@ const Profile = () => {
         />
         <img
           onClick={() => fileRef.current.click()}
-          className="rounded-full w-24 h-24 object-cover self-center cursor-pointer my-3"
-          src={formData.avatar || "https://lh3.googleusercontent.com/a-/ALV-UjWtkR6qW8gKIQo6hr5n1EnC7vqk5fAmO0WSeyh_w0SPUCIDIxcgcM2erVzIQdxN_8FAblKHpPi75Kr6I6gMh_1yDl7VIE8H_e4rzu8DthR6YHHHX9H6JyU_ly-8NK8OmbJcnbeWJk7GviIbpeXBYd-l9blw015W6lMZ_afUY7jjQo8QkpNU2pKJHinJMUsSkeiyAAyiXDAZd5qH3YbIrZOuy9xj-pAylSou1Mq8WemZByjs9senWcQ_88KSU_9v_i2aPOLxH4MOCP990dGvBqpApUOoiSmM98N24MAnzB7SBWFZBbmW-gF8MUVYdeKEoXMTZLu6i2s46YHg0R5_qBUxlmsJfqEBWulFWm52xB0EVrJnltzw40iRA8F5cNrgZ6MbWW9aq7Me1YuUeoudFyXe2JSTpbMQDjcFjfT51trXNwc-NObRZlvKhvELnaE0WcI1JV0GQ9HJt4Wh5n-oEwrivqeV_pUy1RHQpxyQnJlxmEWPht5EfADywDQOtfPvPkVxqZPTHDlpXpNhGipQfPa1YTg9ii4yBEpXPGOyebnmuh9ac9SXq2bYxB2qHLHOjhqRMJ8HWjUuH06nmM7gXeqfwdb-qU2y9qQ5GNV20GBToBKvCiTHOklpjhr1hUJK29fzTgZ7DK1LQviCTtyo4tG9JFeSLu0c-Pe8S0qbCHKDyaFSFTwQcFIT33J3Z4fAaIrrjiQqE-D3Troxv2zieT6CedLflZYX3BdVerfdgZ1fbx42MAmcxVKFz7-12X4M1bPKx4bFoWF5PcjI372FpdI_YfETifi6nA7-i_nf_DJQfOqsgpeDGUBX9VsaWI5RF_-Z998VB1cjtcun67EL2e4sEkMDLxC7frI02t1s25CE0tX17mPAXvVp--ITP-IHJ4ENz6wR4vZ947Q1yElDqwTdvOo-5jj14yN6sbIbB2Pu8uNJ1Aw7jb8PpnyZ-QerXPSo_Eh_p8OszKaDtXlhke0PLw=s96-c"}
+          src={formData.avatar || currentUser.avatar}
           alt="profile"
+          className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
         <p className="text-sm self-center">
-          {fileUploadErr ? (
-            <span className="text-red-700"> Image Uploadng Error (image must be less than 2 MB)</span>
+          {fileUploadError ? (
+            <span className="text-red-700">
+              Error Image upload (image must be less than 2 mb)
+            </span>
           ) : filePerc > 0 && filePerc < 100 ? (
-            <span className="text-slate-700">{`uploading ${filePerc} %`}</span>
-          ) : filePerc == 100 ? (
-            <span className="text-green-700">Image Uploaded Successfully</span>
+            <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
+          ) : filePerc === 100 ? (
+            <span className="text-green-700">Image successfully uploaded!</span>
           ) : (
             ""
           )}
@@ -87,31 +118,33 @@ const Profile = () => {
         <input
           type="text"
           placeholder="username"
+          defaultValue={currentUser.username}
           id="username"
-          className="border rounded-lg p-3 "
+          className="border p-3 rounded-lg"
+          onChange={handleChange}
         />
         <input
           type="email"
           placeholder="email"
           id="email"
-          className="border rounded-lg p-3 "
+          defaultValue={currentUser.email}
+          className="border p-3 rounded-lg"
+          onChange={handleChange}
         />
         <input
           type="password"
           placeholder="password"
+          onChange={handleChange}
           id="password"
-          className="border rounded-lg p-3"
+          className="border p-3 rounded-lg"
         />
-        <button className="bg-slate-700 text-white rounded-lg p-2 uppercase hover:opacity-95 disabled:opacity-80">
-          Update
+        <button
+          disabled={loading}
+          className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+        >
+          {loading ? "Loading..." : "Update"}
         </button>
       </form>
-      <div className="flex justify-between mt-5">
-        <span className="text-red-500 cursor-pointer"> Delete account</span>
-        <span className="text-red-500 cursor-pointer"> sign out</span>
-      </div>
     </div>
   );
-};
-
-export default Profile;
+}

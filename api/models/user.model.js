@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-const { Schema } = mongoose;
-const userSchema = new Schema(
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -16,15 +16,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    avatar: {
+    avatar:{
       type: String,
-      default:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh4B5rxKwG5ce-sS1UBdkx586i9lIevtbiCg&s",
+      default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
     },
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;
