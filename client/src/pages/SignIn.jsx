@@ -13,6 +13,7 @@ export default function SignIn() {
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -31,7 +32,7 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
+      console.log("SignIn Response : ",data);
       if (data.success === false) {
         dispatch(signInFailure(data.message));
         return;
