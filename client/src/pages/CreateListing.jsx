@@ -1,9 +1,83 @@
-import React from "react";
+import {
+  getDownloadURL,
+  getStorage,
+  uploadBytesResumable,
+  ref,
+} from "firebase/storage";
+import React, { useState } from "react";
+import { app } from "../firebase.js";
 
 const CreateListing = () => {
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({ imageUrls: [] });
+  const [uploading, setUploading] = useState(false);
+  console.log("Uploaded files", files);
+  console.log("Form data : ", formData);
+  const [imageUploadError, setImageUploadError] = useState(false);
+
+  const handleImageSubmit = (e) => {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImageUploadError(false);
+      const promises = [];
+
+      for (let i = 0; i < files.length; i++) {
+        promises.push(storeImage(files[i]));
+      }
+      Promise.all(promises)
+        .then((urls) => {
+          setFormData({
+            ...formData,
+            imageUrls: formData.imageUrls.concat(urls),
+          });
+          setImageUploadError(false);
+          setUploading(false);
+        })
+        .catch((err) => {
+          setImageUploadError("Image upload failed (2 mb max per image)");
+          setUploading(false);
+        });
+    } else {
+      setImageUploadError("You can only upload 6 images per listing");
+      setUploading(false);
+    }
+  };
+
+  const storeImage = (file) => {
+    return new Promise((resolve, reject) => {
+      let storage = getStorage(app);
+      let fileName = new Date().getTime() + "_" + file.name;
+      let storageRef = ref(storage, fileName);
+      let uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  };
+  const handleDeleteImg = (index) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
+    });
+  };
   return (
     <main className="p-3 max-w-4xl mx-auto">
-      <h1 className="text-3xl text-center my-5 font-semibold">CreateListing</h1>
+      <h1 className="text-3xl text-center my-5 font-semibold">
+        Create Listing
+      </h1>
       <form className="flex flex-col sm:flex-row gap-4">
         {/* input fields */}
         <div className="flex flex-col gap-4 flex-1">
@@ -28,7 +102,8 @@ const CreateListing = () => {
             className="border p-3 rounded-lg"
             required
           />
-          {/* check boxes */}
+
+          {/* checkboxes */}
           <div className="flex flex-wrap gap-6">
             <div className="flex gap-2">
               <input type="checkbox" id="sell" className="w-5" />
@@ -46,7 +121,6 @@ const CreateListing = () => {
               <input type="checkbox" id="furnished" className="w-5" />
               <span>Furnished</span>
             </div>
-
             <div className="flex gap-2 ">
               <input type="checkbox" id="offer" className="w-5" />
               <span>Offer</span>
@@ -54,9 +128,7 @@ const CreateListing = () => {
           </div>
 
           {/* Number input fields */}
-
           <div className="flex flex-wrap gap-6">
-
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -82,7 +154,7 @@ const CreateListing = () => {
               />
               <p>Baths</p>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -95,7 +167,6 @@ const CreateListing = () => {
               />
               <div className="flex flex-col items-center">
                 <p>Regular price</p>
-
                 <span className="text-xs">($ / month)</span>
               </div>
             </div>
@@ -103,24 +174,22 @@ const CreateListing = () => {
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                id="discountPrice"
+                id="regularPrice"
                 defaultValue={1}
-                min="0"
+                min="50"
                 max="10000000"
                 required
                 className="p-3 border border-gray-300 rounded-lg"
               />
               <div className="flex flex-col items-center">
-                <p>Discounted price</p>
-
+                <p>DiscountedPrice</p>
                 <span className="text-xs">($ / month)</span>
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Second form --->Right side */}
+        {/* Second form (Right side) */}
         <div className="flex flex-col gap-4 flex-1">
           <p className="font-semibold">
             Images:
@@ -131,16 +200,47 @@ const CreateListing = () => {
 
           <div className="flex gap-4">
             <input
-              className="p-3 border border-gray-300 w-full "
+              onChange={(e) => setFiles(e.target.files)}
+              className="p-3 border border-gray-300 w-full"
               type="file"
               id="images"
-              accept="images/*"
+              accept="image/*"
               multiple
             />
-            <button className="p-3 text-green-700   border border-green-700 rounded hover:shadow-lg disabled:opacity-80">
-              Upload
+            <button
+              type="button"
+              onClick={handleImageSubmit}
+              className="p-3 text-green-700 border border-green-700 rounded hover:shadow-lg disabled:opacity-80"
+            >
+              {uploading ? "Uploading" : "Upload"}
             </button>
           </div>
+          <p className="text-red-700 text-sm">
+            {imageUploadError && imageUploadError}
+          </p>
+
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((urls, index) => (
+              <div
+                key={urls}
+                className="flex justify-between p-3 border items-center "
+              >
+                <img
+                  src={urls}
+                  alt="listing Name"
+                  className="rounded-lg w-20 h-20 object-cover "
+                />
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => handleDeleteImg(index)}
+                  className="text-red-700 p-3 rounded-lg uppercase hover:opacity-75"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+
           <button className="p-3 bg-slate-700 text-white uppercase rounded-lg hover:opacity-95 disabled:opacity-80">
             Create Listing
           </button>
