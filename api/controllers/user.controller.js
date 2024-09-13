@@ -1,11 +1,11 @@
-import bcryptjs from 'bcryptjs';
-import User from '../models/user.model.js';
-import { errorHandler } from '../utils/error.js';
-
+import bcryptjs from "bcryptjs";
+import User from "../models/user.model.js";
+import { errorHandler } from "../utils/error.js";
+import Listing from "../models/listing.model.js";
 
 export const test = (req, res) => {
   res.json({
-    message: 'Api route is working!',
+    message: "Api route is working!",
   });
 };
 
@@ -13,7 +13,7 @@ export const test = (req, res) => {
 
 export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.id)
-    return next(errorHandler(401, 'You can only update your own account!'));
+    return next(errorHandler(401, "You can only update your own account!"));
   try {
     if (req.body.password) {
       req.body.password = bcryptjs.hashSync(req.body.password, 10);
@@ -40,17 +40,31 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-
 // Delete User Route
 
 export const deleteUser = async (req, res, next) => {
-  if (req.user.id!== req.params.id)
-    return next(errorHandler(401, 'You can only delete your own account!'));
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, "You can only delete your own account!"));
   try {
     await User.findByIdAndDelete(req.params.id);
-    res.clearCookie('access_token');
-    res.status(200).json({ message: 'User deleted successfully!' });
+    res.clearCookie("access_token");
+    res.status(200).json({ message: "User deleted successfully!" });
   } catch (error) {
     next(error);
+  }
+};
+
+// get User Listings
+
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await Listing.find({ userRef: req.params.id });
+      res.status(200).json(listings);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    return next(errorHandler(401, "You can only access your own Listings!"));
   }
 };
