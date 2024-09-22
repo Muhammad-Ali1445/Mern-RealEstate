@@ -80,7 +80,7 @@ const Listing = () => {
           </div>
 
           {copied && (
-            <p className="fixed top-[23%] right-[5%] z-10 rounded-md bg-slate-100 p-2">
+            <p className="fixed top-[27%] right-[5%] z-10 rounded-md bg-slate-100 p-2">
               Link copied!
             </p>
           )}
