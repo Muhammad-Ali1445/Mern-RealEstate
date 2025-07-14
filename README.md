@@ -21,7 +21,7 @@ UrbanNest is a full-stack real estate web application where users can register, 
 - Tailwind CSS
 - Redux Toolkit
 
-**Run front** : cd client then npm run dev
+**Run frontend** : cd client then npm run dev
 
 **Backend:**
 - Node.js
@@ -37,16 +37,3 @@ UrbanNest is a full-stack real estate web application where users can register, 
 - Firebase Storage
 - Vercel (deployment)
 - Git & GitHub
-
----
-
-## 📦 Getting Started
-
-### 🔧 Prerequisites
-Make sure you have installed:
-- Node.js
-- npm or yarn
-- MongoDB (or use MongoDB Atlas)
-- Firebase project (for storage)
-
-
