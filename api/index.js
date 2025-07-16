@@ -30,9 +30,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
 // test Route 
-router.get("/ping", (req, res) => {
-  res.send("Listing route is working ✅");
+app.get("/ping", (req, res) => {
+  res.send("API is working ✅");
 });
+
 
 // ❌ Commented out because we're not serving the frontend from here
 // app.use(express.static(path.join(__dirname, '/client/dist')));
