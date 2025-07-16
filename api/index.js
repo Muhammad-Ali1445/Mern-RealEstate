@@ -29,6 +29,11 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
+// test Route 
+router.get("/ping", (req, res) => {
+  res.send("Listing route is working ✅");
+});
+
 // ❌ Commented out because we're not serving the frontend from here
 // app.use(express.static(path.join(__dirname, '/client/dist')));
 // app.get('*', (req, res) => {
