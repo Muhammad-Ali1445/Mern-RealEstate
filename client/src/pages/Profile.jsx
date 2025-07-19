@@ -81,6 +81,7 @@ export default function Profile() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: 'include',
           body: JSON.stringify(formData),
         }
       );
@@ -104,6 +105,7 @@ export default function Profile() {
         `${import.meta.env.VITE_API_URL}/api/user/delete/${currentUser._id}`,
         {
           method: "DELETE",
+          credentials: 'include',
         }
       );
       const data = await res.json();
@@ -162,6 +164,7 @@ export default function Profile() {
         `${import.meta.env.VITE_API_URL}/api/listing/delete/${listingId}`,
         {
           method: "DELETE",
+          credentials: 'include',
         }
       );
       const data = await res.json();
