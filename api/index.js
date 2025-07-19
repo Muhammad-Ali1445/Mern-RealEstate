@@ -22,17 +22,19 @@ mongoose
 const __dirname = path.resolve();
 const app = express();
 
-// ✅ CORS middleware
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
       "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
-      "https://urban-nest-livid.vercel.app"
+      "https://urban-nest-livid.vercel.app",
+      "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app", // ✅ Add this line
+      "https://urban-nest-git-main-ali-munirs-projects.vercel.app"   // ✅ Add this too (optional)
     ],
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use(cookieParser());
