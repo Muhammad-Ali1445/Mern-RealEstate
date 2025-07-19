@@ -57,6 +57,9 @@ export const deleteUser = async (req, res, next) => {
 // get User Listings
 
 export const getUserListings = async (req, res, next) => {
+  console.log("🔍 Requested User ID:", req.params.id);
+  console.log("🔑 Authenticated Token ID:", req.user.id);
+
   if (req.user.id === req.params.id) {
     try {
       const listings = await Listing.find({ userRef: req.params.id });
@@ -68,6 +71,7 @@ export const getUserListings = async (req, res, next) => {
     return next(errorHandler(401, "You can only access your own Listings!"));
   }
 };
+
 
 // get landlord information / get User
 

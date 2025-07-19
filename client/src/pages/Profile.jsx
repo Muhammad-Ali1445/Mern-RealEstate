@@ -78,10 +78,10 @@ export default function Profile() {
         `${import.meta.env.VITE_API_URL}/api/user/update/${currentUser._id}`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify(formData),
         }
       );

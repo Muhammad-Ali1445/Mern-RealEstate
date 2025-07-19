@@ -136,10 +136,10 @@ export default function CreateListing() {
         `${import.meta.env.VITE_API_URL}/api/listing/create`,
         {
           method: "POST",
+          credentials: "include", // ✅ Include JWT cookie
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // ✅ Include JWT cookie
           body: JSON.stringify({
             ...formData,
             userRef: currentUser._id,

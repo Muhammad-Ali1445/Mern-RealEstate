@@ -28,8 +28,10 @@ app.use(
       "http://localhost:5173",
       "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
       "https://urban-nest-livid.vercel.app",
-      "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app", // ✅ Add this line
-      "https://urban-nest-git-main-ali-munirs-projects.vercel.app"   // ✅ Add this too (optional)
+      "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app", 
+      "https://urban-nest-git-main-ali-munirs-projects.vercel.app",
+      "https://urban-nest-f8vbmal21-ali-munirs-projects.vercel.app"
+
     ],
     credentials: true,
   })
