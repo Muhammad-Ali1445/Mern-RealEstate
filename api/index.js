@@ -1,4 +1,4 @@
-import express from "express"; 
+import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors"; // ✅ NEW
@@ -24,19 +24,24 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
-      "https://urban-nest-livid.vercel.app",
-      "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app", 
-      "https://urban-nest-git-main-ali-munirs-projects.vercel.app",
-      "https://urban-nest-f8vbmal21-ali-munirs-projects.vercel.app"
-
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
+        "https://urban-nest-livid.vercel.app",
+        "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app",
+        "https://urban-nest-git-main-ali-munirs-projects.vercel.app",
+        "https://urban-nest-f8vbmal21-ali-munirs-projects.vercel.app",
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
-
 
 app.use(express.json());
 app.use(cookieParser());
@@ -46,7 +51,7 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-// test Route 
+// test Route
 app.get("/ping", (req, res) => {
   res.send("API is working ✅");
 });
