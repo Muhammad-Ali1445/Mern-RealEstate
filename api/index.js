@@ -24,21 +24,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
-        "https://urban-nest-livid.vercel.app",
-        "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app",
-        "https://urban-nest-git-main-ali-munirs-projects.vercel.app",
-        "https://urban-nest-f8vbmal21-ali-munirs-projects.vercel.app",
-      ];
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+   origin: [
+      "http://localhost:5173",
+      "https://urban-nest-2c0l03i5b-ali-munirs-projects.vercel.app",
+      "https://urban-nest-livid.vercel.app",
+      "https://urban-nest-hfhvpy6h0-ali-munirs-projects.vercel.app", 
+      "https://urban-nest-git-main-ali-munirs-projects.vercel.app",
+      "https://urban-nest-f8vbmal21-ali-munirs-projects.vercel.app"
+    ],
     credentials: true,
   })
 );
