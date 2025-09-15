@@ -38,7 +38,7 @@ export default function CreateListing() {
       const listingId = params.listingId;
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listing/get/${listingId}`);
       const data = await res.json();
-      console.log("data is ", data);
+      // console.log("data is ", data);
       if (data.success === false) {
         console.log(data.message);
         return;

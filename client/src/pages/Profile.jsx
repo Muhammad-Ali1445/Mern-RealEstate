@@ -147,7 +147,7 @@ export default function Profile() {
         }
       );
       const data = await res.json();
-      console.log("Response", data);
+      // console.log("Response", data);
       if (data.success == false) {
         setShowListingsError(true);
         return;
@@ -268,6 +268,7 @@ export default function Profile() {
       {showListingsError && (
         <p className="text-red-700 mt-5">Failed to fetch listings</p>
       )}
+
       {/* show listing if User Exist */}
 
       {userListings && userListings.length > 0 && (
@@ -288,7 +289,7 @@ export default function Profile() {
                 />
               </Link>
               <Link
-                className="text-slate-700 font-semibold  hover:underline truncate flex-1"
+                className="text-slate-700 font-semibold hover:underline truncate flex-1"
                 to={`/listing/${listing._id}`}
               >
                 <p>{listing.name}</p>
